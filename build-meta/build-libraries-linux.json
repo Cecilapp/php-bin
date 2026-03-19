@@ -11,5 +11,10 @@
     "curl",
     "onig",
     "sqlite",
-    "libzip"
+    "libzip",
+    "libpng",
+    "freetype",
+    "libjpeg",
+    "libwebp",
+    "libavif"
 ]
