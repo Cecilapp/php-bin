@@ -219,8 +219,9 @@ jobs:
           title: "Update PHP ${{ env.PHP_VERSION }} build for ${{ env.SPC_BUILD_OS }} ${{ env.SPC_BUILD_ARCH }}"
           commit-message: "build"
           body: |
-            PHP: ${{ env.PHP_VERSION_FULL }}
-            Exts: ${{ env.PHP_EXTENSIONS }}
-            OS: ${{ env.SPC_BUILD_OS }}
-            Arch: ${{ env.SPC_BUILD_ARCH }}
+            - PHP: `${{ env.PHP_VERSION_FULL }}`
+            - Exts: `${{ env.PHP_EXTENSIONS }}`
+            - Libs: `${{ env.PHP_LIBS }}`
+            - OS: `${{ env.SPC_BUILD_OS }}`
+            - Arch: `${{ env.SPC_BUILD_ARCH }}`
           base: main
