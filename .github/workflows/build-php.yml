@@ -166,12 +166,20 @@ jobs:
           ./bin/${{ env.SPC_BINARY }} build --build-micro "${{ env.PHP_EXTENSIONS }}" --with-libs="${{ env.PHP_LIBS }}" --debug
           cd ../php-bin
 
+      # ICU 78 headers require C++17, but ext/intl/config.w32 only sets `/std:c++17` since PHP 8.4:
+      # backport it to the extracted source (SPC does not extract it again while its hash is unchanged).
+      - name: Patch intl for C++17 (Windows, PHP < 8.4)
+        if: matrix.os == 'windows-2022' && (matrix.version == '8.2' || matrix.version == '8.3')
+        shell: bash
+        run: |
+          cd ../static-php-cli
+          ./bin/${{ env.SPC_BINARY }} extract php-src --source-only
+          sed -i 's|ADD_FLAG("CFLAGS_INTL", "/EHsc|ADD_FLAG("CFLAGS_INTL", "/std:c++17 /EHsc|' source/php-src/ext/intl/config.w32
+          grep -q '/std:c++17' source/php-src/ext/intl/config.w32
+          cd ../php-bin
+
       - name: Build PHP (Windows with custom icon)
         if: matrix.os == 'windows-2022'
-        env:
-          # ICU 78 headers require C++17, but ext/intl/config.w32 only sets `/std:c++17` since PHP 8.4.
-          # MSVC reads extra options from the `CL` environment variable.
-          CL: ${{ (matrix.version == '8.2' || matrix.version == '8.3') && '/std:c++17' || '' }}
         run: |
           cd ../static-php-cli
           ./bin/${{ env.SPC_BINARY }} build --build-micro "${{ env.PHP_EXTENSIONS }}" --with-libs="${{ env.PHP_LIBS }}" --debug --with-micro-logo=icon.ico
