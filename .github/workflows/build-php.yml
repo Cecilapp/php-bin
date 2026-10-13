@@ -170,12 +170,15 @@ jobs:
       # backport it to the extracted source (SPC does not extract it again while its hash is unchanged).
       - name: Patch intl for C++17 (Windows, PHP < 8.4)
         if: matrix.os == 'windows-2022' && (matrix.version == '8.2' || matrix.version == '8.3')
-        shell: bash
+        # PowerShell, not bash: SPC extracts with `tar`, and Git Bash's GNU tar can't handle `D:\` paths
+        shell: pwsh
         run: |
           cd ../static-php-cli
           ./bin/${{ env.SPC_BINARY }} extract php-src --source-only
-          sed -i 's|ADD_FLAG("CFLAGS_INTL", "/EHsc|ADD_FLAG("CFLAGS_INTL", "/std:c++17 /EHsc|' source/php-src/ext/intl/config.w32
-          grep -q '/std:c++17' source/php-src/ext/intl/config.w32
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $file = 'source/php-src/ext/intl/config.w32'
+          (Get-Content $file -Raw).Replace('ADD_FLAG("CFLAGS_INTL", "/EHsc', 'ADD_FLAG("CFLAGS_INTL", "/std:c++17 /EHsc') | Set-Content $file -NoNewline
+          if (-not (Select-String -Path $file -SimpleMatch '/std:c++17' -Quiet)) { Write-Error 'Unable to patch intl config.w32'; exit 1 }
           cd ../php-bin
 
       - name: Build PHP (Windows with custom icon)
