@@ -9,12 +9,14 @@
     "bzip2",
     "openssl",
     "curl",
+    "libpng",
+    "libaom",
+    "libwebp",
+    "libjpeg",
+    "libavif",
+    "freetype",
+    "icu",
     "onig",
     "sqlite",
-    "libzip",
-    "libpng",
-    "freetype",
-    "libjpeg",
-    "libwebp",
-    "libavif"
+    "libzip"
 ]
